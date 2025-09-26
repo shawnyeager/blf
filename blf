@@ -1,0 +1,136 @@
+#!/bin/bash
+
+# blf - Blue Light Filter with DDC/CI
+# Usage: blf [0-10|toggle|up|down|status|sync]
+#
+# CONFIGURATION: Set your monitor's blue light VCP code here
+VCP_CODE="0xE6"  # Asus ProArt PA27JCV - change this for your monitor
+
+# CONFIGURATION: Adjust these if your monitor behaves differently
+INVERT_VALUES=1  # Set to 1 if higher VCP values mean LESS blue light filtering
+                 # Set to 0 if higher VCP values mean MORE blue light filtering
+VCP_MAX=100      # Maximum VCP value your monitor uses (usually 100 or 255)
+
+# PERFORMANCE: Set your I2C bus number for faster access (run 'ddcutil detect' to find it)
+I2C_BUS="17"     # e.g. "17" - leave empty for auto-detection (slower)
+
+# Build ddcutil command with optimizations
+build_ddcutil_cmd() {
+    local cmd="ddcutil --sleep-multiplier 0.2"
+    if [ -n "$I2C_BUS" ]; then
+        cmd="$cmd --bus $I2C_BUS"
+    fi
+    echo "$cmd"
+}
+
+get_current_level() {
+    # Always use cached level if available, only read from monitor if no cache exists
+    local cache_file="$HOME/.cache/blf_level"
+    
+    if [ -f "$cache_file" ]; then
+        cat "$cache_file"
+        return
+    fi
+    
+    # No cache exists, read from monitor and cache it
+    local ddcutil_cmd=$(build_ddcutil_cmd)
+    local raw_output=$($ddcutil_cmd getvcp $VCP_CODE --terse 2>/dev/null)
+    
+    # Try multiple parsing methods for different ddcutil output formats
+    local current=""
+    
+    # Method 1: Parse terse format like "VCP E6 CNC x00 x64 x00 x00"
+    current=$(echo "$raw_output" | grep -o 'x[0-9a-f][0-9a-f]' | sed -n '2p' | cut -c2-)
+    
+    # Method 2: Parse format with sl= like "sl=0x64"  
+    if [ -z "$current" ]; then
+        current=$(echo "$raw_output" | grep -o 'sl=0x[0-9a-f]*' | cut -d'x' -f2)
+    fi
+    
+    # Method 3: Look for standalone hex values
+    if [ -z "$current" ]; then
+        current=$(echo "$raw_output" | grep -o '0x[0-9a-f][0-9a-f]' | head -1 | cut -d'x' -f2)
+    fi
+    
+    if [ -n "$current" ]; then
+        local vcp_val=$((16#$current))
+        
+        # Apply inversion and scaling based on configuration
+        local level
+        if [ "$INVERT_VALUES" -eq 1 ]; then
+            level=$(((VCP_MAX - vcp_val) * 10 / VCP_MAX))
+        else
+            level=$((vcp_val * 10 / VCP_MAX))
+        fi
+        
+        # Cache the result permanently
+        mkdir -p "$HOME/.cache"
+        echo "$level" > "$cache_file"
+        echo "$level"
+    else
+        echo "0"
+    fi
+}
+
+set_level() {
+    local level=$1
+    local vcp_value
+    
+    # Apply inversion and scaling based on configuration
+    if [ "$INVERT_VALUES" -eq 1 ]; then
+        vcp_value=$(((10 - level) * VCP_MAX / 10))
+    else
+        vcp_value=$((level * VCP_MAX / 10))
+    fi
+    
+    local ddcutil_cmd=$(build_ddcutil_cmd)
+    $ddcutil_cmd setvcp $VCP_CODE $vcp_value --noverify 2>/dev/null
+    
+    # Update cache permanently
+    mkdir -p "$HOME/.cache"
+    echo "$level" > "$HOME/.cache/blf_level"
+    
+    notify-send -t 2000 "Blue Light Filter" "Level: $level/10" -i display-brightness
+}
+
+case "$1" in
+    "toggle")
+        current=$(get_current_level)
+        if [ "$current" = "10" ]; then
+            set_level 0
+        else
+            set_level 10
+        fi
+        ;;
+    "up")
+        current=$(get_current_level)
+        new_level=$((current + 1))
+        [ $new_level -gt 10 ] && new_level=10
+        set_level $new_level
+        ;;
+    "down")
+        current=$(get_current_level)
+        new_level=$((current - 1))
+        [ $new_level -lt 0 ] && new_level=0
+        set_level $new_level
+        ;;
+    "status")
+        current=$(get_current_level)
+        echo "Blue light level: $current/10"
+        ;;
+    "sync")
+        # Force refresh from monitor and update cache
+        rm -f "$HOME/.cache/blf_level"
+        current=$(get_current_level)
+        echo "Synced from monitor: $current/10"
+        ;;
+    [0-9]|10)
+        set_level "$1"
+        ;;
+    *)
+        current=$(get_current_level)
+        echo "Blue Light Filter"
+        echo "Current level: $current/10"
+        echo "Usage: $0 [0-10|toggle|up|down|status|sync]"
+        ;;
+esac
