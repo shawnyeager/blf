@@ -68,8 +68,8 @@ blf sync        # Sync with monitor (if manually changed via OSD)
 ```
 
 **Blue Light Levels:**
-- `0` = Maximum blue light filtering (warmest colors, no blue light)
-- `10` = No filtering (normal screen colors, full blue light)
+- `0` = Blue light filter OFF (normal screen colors)
+- `10` = Blue light filter at MAX (warmest colors, most blue light removed)
 
 ## Hyprland Integration
 
@@ -78,14 +78,14 @@ Add these bindings to your `~/.config/hypr/hyprland.conf`:
 ### Basic Controls
 ```bash
 # Blue Light Filter Controls
-bindld = SHIFT, XF86AudioPrev, Decrease blue light filtering, exec, blf down
+bindld = SHIFT, XF86AudioPrev, Increase blue light filtering, exec, blf up
 bindld = SHIFT, XF86AudioPlay, Toggle blue light on/off, exec, blf toggle  
-bindld = SHIFT, XF86AudioNext, Increase blue light filtering, exec, blf up
+bindld = SHIFT, XF86AudioNext, Decrease blue light filtering, exec, blf down
 
 # Quick Presets
-bindld = CTRL SHIFT, XF86AudioPrev, Blue light filter off, exec, blf 0
+bindld = CTRL SHIFT, XF86AudioPrev, Maximum blue light filtering, exec, blf 10
 bindld = CTRL SHIFT, XF86AudioPlay, Medium blue light filtering, exec, blf 5
-bindld = CTRL SHIFT, XF86AudioNext, Maximum blue light filtering, exec, blf 10
+bindld = CTRL SHIFT, XF86AudioNext, Blue light filter off, exec, blf 0
 ```
 
 ### Alternative Key Bindings
