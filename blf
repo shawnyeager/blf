@@ -78,9 +78,9 @@ set_level() {
 
   # Apply inversion and scaling based on configuration
   if [ "$INVERT_VALUES" -eq 1 ]; then
-    vcp_value=$(((10 - level) * VCP_MAX / 10)) # level 0 -> VCP 100, level 10 -> VCP 0
+    vcp_value=$((level * VCP_MAX / 10)) # level 0 -> VCP 0, level 10 -> VCP 100
   else
-    vcp_value=$((level * VCP_MAX / 10))
+    vcp_value=$(((10 - level) * VCP_MAX / 10))
   fi
 
   local ddcutil_cmd=$(build_ddcutil_cmd)

@@ -43,7 +43,11 @@ Before using, configure your monitor's VCP code:
    ```
    Look for manufacturer-specific codes (usually 0xE0-0xFF range)
 
-2. **Edit the script configuration:**
+2. **Reference resources for VCP codes:**
+   - **ddcutil VCP feature codes**: https://www.ddcutil.com/vcpinfo_output/
+   - **ArchWiki DDC section**: https://wiki.archlinux.org/title/Backlight#DDC/CI_(external_monitors)
+
+3. **Edit the script configuration:**
    ```bash
    # Open blf in your editor and modify these variables:
    VCP_CODE="0xE6"    # Change to your monitor's code
@@ -51,7 +55,7 @@ Before using, configure your monitor's VCP code:
    INVERT_VALUES=1    # Set to 0 if your monitor logic is inverted
    ```
 
-3. **Find your I2C bus (optional but recommended):**
+4. **Find your I2C bus (optional but recommended):**
    ```bash
    ddcutil detect
    ```
