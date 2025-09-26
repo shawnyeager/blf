@@ -28,7 +28,7 @@ sudo usermod -a -G i2c $USER
 sudo modprobe i2c-dev
 
 # Install blf
-curl -O https://raw.githubusercontent.com/shawnyeager/blf/main/blf
+curl -O https://raw.githubusercontent.com/shawnyeager/blf/master/blf
 chmod +x blf
 sudo mv blf /usr/local/bin/
 ```
