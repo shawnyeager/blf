@@ -136,7 +136,7 @@ ddcutil setvcp 0xE6 50  # Try different codes: 0xE0, 0xE1, etc.
 ### Keybindings not working in Hyprland
 ```bash
 # Check what keys your F7/F8/F9 actually produce
-wev
+wev # Install with: sudo pacman -S wev (Arch) or sudo apt install wev (Ubuntu)
 
 # Use the actual keysym names shown by wev
 bindld = SHIFT, YourActualKeysym, Description, exec, blf toggle
