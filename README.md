@@ -68,8 +68,8 @@ blf sync        # Sync with monitor (if manually changed via OSD)
 ```
 
 **Blue Light Levels:**
-- `0` = No filtering (normal blue light)
-- `10` = Maximum filtering (warmest, least blue light)
+- `0` = Maximum blue light filtering (warmest colors, no blue light)
+- `10` = No filtering (normal screen colors, full blue light)
 
 ## Hyprland Integration
 
