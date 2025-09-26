@@ -1,13 +1,13 @@
 # blf - Blue Light Filter
 
-A fast, hardware-level blue light filter control for external monitors using DDC/CI. Perfect for Hyprland and other Wayland compositors.
+A fast, hardware-level blue light filter control for external monitors using DDC/CI.
 
 ## Features
 
 - **Hardware control** - Uses your monitor's built-in blue light filter (not software gamma)
 - **Fast operation** - Optimized DDC/CI commands with caching
 - **Persistent state** - Remembers your settings between sessions
-- **Wayland native** - Works perfectly with Hyprland, Sway, etc.
+- **Universal compatibility** - Works with any Linux desktop environment
 - **Portable** - Easy configuration for different monitor models
 
 ## Requirements
@@ -136,7 +136,7 @@ ddcutil setvcp 0xE6 50  # Try different codes: 0xE0, 0xE1, etc.
 ### Keybindings not working in Hyprland
 ```bash
 # Check what keys your F7/F8/F9 actually produce
-wev # Install with: sudo pacman -S wev (Arch) or sudo apt install wev (Ubuntu)
+wev  # Install with: sudo pacman -S wev (Arch) or sudo apt install wev (Ubuntu)
 
 # Use the actual keysym names shown by wev
 bindld = SHIFT, YourActualKeysym, Description, exec, blf toggle
